@@ -16,8 +16,8 @@ namespace vroom::routing {
 
 class OrsWrapper : public HttpWrapper {
 private:
-  std::string build_query(const std::vector<Location>& locations,
-                          const std::string& service) const override;
+  std::string to_string(const rapidjson::Value& value) const;
+  const Input& _input;
 
   void check_response(const rapidjson::Document& json_result,
                       const std::vector<Location>& locs,
@@ -27,7 +27,12 @@ private:
   get_legs(const rapidjson::Value& result) const override;
 
 public:
-  OrsWrapper(const std::string& profile, const Server& server);
+OrsWrapper(const std::string& profile,
+           const Server& server,
+           const Input& input);
+
+  std::string build_query(const std::vector<Location>& locations,
+                              const std::string& service) const override;
 };
 
 } // namespace vroom::routing

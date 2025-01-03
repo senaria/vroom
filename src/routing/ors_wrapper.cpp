@@ -8,17 +8,28 @@ All rights reserved (see LICENSE).
 */
 
 #include "routing/ors_wrapper.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/writer.h"
 
 namespace vroom::routing {
 
-OrsWrapper::OrsWrapper(const std::string& profile, const Server& server)
+OrsWrapper::OrsWrapper(const std::string& profile,
+           const Server& server,
+           const Input& input)
   : HttpWrapper(profile,
                 server,
                 "matrix",
                 "durations",
                 "distances",
                 "directions",
-                R"("geometry_simplify":"false","continue_straight":"false")") {
+                R"("geometry_simplify":"false")"), _input(input) {
+}
+
+std::string OrsWrapper::to_string(const rapidjson::Value& value) const {
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    value.Accept(writer);
+    return buffer.GetString();
 }
 
 std::string OrsWrapper::build_query(const std::vector<Location>& locations,
@@ -38,6 +49,17 @@ std::string OrsWrapper::build_query(const std::vector<Location>& locations,
   body += "]";
   if (service == _route_service) {
     body += "," + _routing_args;
+    // Add `routing_options` fields directly to the body
+    const auto& options = this->_input.get_routing_options();
+    if (!options.ObjectEmpty()) {
+        body += ",";
+        for (auto it = options.MemberBegin(); it != options.MemberEnd(); ++it) {
+            body += "\"" + std::string(it->name.GetString()) + "\":";
+            body += to_string(it->value) + ",";
+        }
+    }
+
+    body.pop_back(); // Remove trailing comma at the end
   } else {
     assert(service == _matrix_service);
     body += R"(,"metrics":["duration","distance"])";

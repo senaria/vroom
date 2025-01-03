@@ -83,7 +83,7 @@ void Input::add_routing_wrapper(const std::string& profile) {
       throw InputException("Invalid profile: " + profile + ".");
     }
     routing_wrapper =
-      std::make_unique<routing::OrsWrapper>(profile, search->second);
+      std::make_unique<routing::OrsWrapper>(profile, search->second, *this);
   } break;
   case ROUTER::VALHALLA: {
     // Use Valhalla http wrapper.

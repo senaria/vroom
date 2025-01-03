@@ -15,6 +15,7 @@ All rights reserved (see LICENSE).
 #include <optional>
 #include <unordered_map>
 
+#include "rapidjson/document.h"
 #include "routing/wrapper.h"
 #include "structures/generic/matrix.h"
 #include "structures/typedefs.h"
@@ -34,6 +35,8 @@ class VRP;
 
 class Input {
 private:
+  rapidjson::Document::AllocatorType allocator;
+  rapidjson::Value routing_options; // Store routing options as JSON object
   TimePoint _start_loading{std::chrono::high_resolution_clock::now()};
   TimePoint _end_loading;
   TimePoint _end_solving;
@@ -115,6 +118,15 @@ private:
   void add_routing_wrapper(const std::string& profile);
 
 public:
+void set_routing_options(rapidjson::Value&& options) {
+    routing_options = std::move(options);
+  }
+  const rapidjson::Value& get_routing_options() const {
+      return routing_options;
+  }
+  void set_allocator(rapidjson::Document::AllocatorType& alloc) {
+      allocator = alloc;
+  }
   std::vector<Job> jobs;
   std::vector<Vehicle> vehicles;
 

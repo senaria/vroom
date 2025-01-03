@@ -16,6 +16,15 @@ All rights reserved (see LICENSE).
 
 namespace vroom::io {
 
+// Helper to parse `routing_options` as a JSON object
+inline rapidjson::Value parse_routing_options(const rapidjson::Value& object,
+                                              rapidjson::Document::AllocatorType& allocator) {
+    if (object.HasMember("routing_options") && object["routing_options"].IsObject()) {
+        return rapidjson::Value(object["routing_options"], allocator);
+    }
+    return rapidjson::Value(rapidjson::kObjectType); // Return empty object if not present
+}
+
 // Helper to get optional array of coordinates.
 inline Coordinates parse_coordinates(const rapidjson::Value& object,
                                      const char* key) {
@@ -539,6 +548,9 @@ void parse(Input& input, const std::string& input_str, bool geometry) {
     first_vehicle_has_capacity ? first_vehicle["capacity"].Size() : 0;
 
   input.set_geometry(geometry);
+
+  // Parse and store `routing_options`
+  input.set_routing_options(std::move(parse_routing_options(json_input, json_input.GetAllocator())));
 
   // Add all vehicles.
   for (rapidjson::SizeType i = 0; i < json_input["vehicles"].Size(); ++i) {

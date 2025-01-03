@@ -6,8 +6,11 @@
 # Variables.
 CXX ?= g++
 USE_ROUTING ?= true
-CXXFLAGS = -MMD -MP -I. -std=c++20 -Wextra -Wpedantic -Wall -O3 -DASIO_STANDALONE -DUSE_ROUTING=$(USE_ROUTING)
+CXXFLAGS = -MMD -MP -I. -I../include -std=c++20 -Wextra -Wpedantic -Wall -O3 -DASIO_STANDALONE -DUSE_ROUTING=$(USE_ROUTING)
 LDLIBS = -lpthread
+
+RAPIDJSON_INCLUDE_PATH = -I../include/rapidjson/include
+CXXFLAGS += $(RAPIDJSON_INCLUDE_PATH)
 
 # Using all cpp files in current directory.
 MAIN = ../bin/vroom
